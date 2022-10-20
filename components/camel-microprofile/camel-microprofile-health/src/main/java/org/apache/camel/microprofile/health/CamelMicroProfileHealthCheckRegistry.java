@@ -19,20 +19,22 @@ package org.apache.camel.microprofile.health;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import io.smallrye.health.api.HealthRegistry;
-import io.smallrye.health.api.HealthType;
-import io.smallrye.health.registry.HealthRegistries;
 import org.apache.camel.CamelContext;
 import org.apache.camel.StartupListener;
 import org.apache.camel.health.HealthCheck;
 import org.apache.camel.health.HealthCheckRegistry;
 import org.apache.camel.health.HealthCheckRepository;
+import org.apache.camel.impl.health.ComponentsHealthCheckRepository;
 import org.apache.camel.impl.health.ConsumersHealthCheckRepository;
 import org.apache.camel.impl.health.DefaultHealthCheckRegistry;
 import org.apache.camel.impl.health.HealthCheckRegistryRepository;
 import org.apache.camel.impl.health.RoutesHealthCheckRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.smallrye.health.api.HealthRegistry;
+import io.smallrye.health.api.HealthType;
+import io.smallrye.health.registry.HealthRegistries;
 
 /**
  * {@link HealthCheckRegistry} implementation to register Camel health checks as MicroProfile health checks on SmallRye
@@ -150,8 +152,8 @@ public class CamelMicroProfileHealthCheckRegistry extends DefaultHealthCheckRegi
                 CamelMicroProfileRepositoryHealthCheck repositoryHealthCheck
                         = new CamelMicroProfileRepositoryHealthCheck(getCamelContext(), repository, healthCheckName);
 
-                if (repository instanceof RoutesHealthCheckRepository || repository instanceof ConsumersHealthCheckRepository) {
-                    // Eagerly register routes & consumers HealthCheckRepository since routes may be supervised
+                if (registerEagerly(repository)) {
+                    // Eagerly register routes, components & consumers HealthCheckRepository since routes may be supervised
                     // and added with an initial delay. E.g repository.stream() may be empty initially but will eventually
                     // return some results
                     getReadinessRegistry().register(repository.getId(), repositoryHealthCheck);
@@ -204,8 +206,16 @@ public class CamelMicroProfileHealthCheckRegistry extends DefaultHealthCheckRegi
     }
 
     protected boolean canRegister(HealthCheckRepository repository) {
-        return repository instanceof RoutesHealthCheckRepository || repository instanceof ConsumersHealthCheckRepository
-                || repository.stream().findAny().isPresent();
+        return repository.stream().findAny().isPresent()
+            || repository instanceof RoutesHealthCheckRepository
+            || repository instanceof ConsumersHealthCheckRepository
+            || repository instanceof ComponentsHealthCheckRepository;
+    }
+
+    protected boolean registerEagerly(HealthCheckRepository repository) {
+        return repository instanceof RoutesHealthCheckRepository
+            || repository instanceof ConsumersHealthCheckRepository
+            || repository instanceof ComponentsHealthCheckRepository;
     }
 
     protected HealthRegistry getLivenessRegistry() {

@@ -17,7 +17,6 @@
 package org.apache.camel.health;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.apache.camel.spi.HasId;
 import org.apache.camel.util.ObjectHelper;
@@ -25,7 +24,7 @@ import org.apache.camel.util.ObjectHelper;
 /**
  * A repository for health checks.
  */
-public interface HealthCheckRepository extends HasId {
+public interface HealthCheckRepository extends HasId, HasHealthChecks {
 
     /**
      * Set if the checks associated to this repository is enabled or not.
@@ -36,11 +35,6 @@ public interface HealthCheckRepository extends HasId {
      * Set if the checks associated to this repository is enabled or not.
      */
     void setEnabled(boolean enabled);
-
-    /**
-     * Returns a sequential {@code Stream} with the known {@link HealthCheck} as its source.
-     */
-    Stream<HealthCheck> stream();
 
     /**
      * Returns the check identified by the given <code>id</code> if available.
