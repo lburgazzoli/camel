@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 
 import io.smallrye.health.SmallRyeHealth;
@@ -79,6 +80,13 @@ public class CamelMicroProfileHealthTestSupport extends CamelTestSupport {
     }
 
     protected void assertHealthCheckOutput(
+        String expectedName,
+        HealthCheckResponse.Status expectedState,
+        JsonArray healthObjects) {
+        CamelMicroProfileHealthTestHelper.assertHealthCheckOutput(expectedName, expectedState, healthObjects);
+    }
+
+    protected void assertHealthCheckOutput(
             String expectedName,
             HealthCheckResponse.Status expectedState,
             JsonObject healthObject,
@@ -86,6 +94,16 @@ public class CamelMicroProfileHealthTestSupport extends CamelTestSupport {
 
         CamelMicroProfileHealthTestHelper.assertHealthCheckOutput(expectedName, expectedState, healthObject,
                 dataObjectAssertions);
+    }
+
+    protected void assertHealthCheckOutput(
+        String expectedName,
+        HealthCheckResponse.Status expectedState,
+        JsonArray healthObjects,
+        Consumer<JsonObject> dataObjectAssertions) {
+
+        CamelMicroProfileHealthTestHelper.assertHealthCheckOutput(expectedName, expectedState, healthObjects,
+            dataObjectAssertions);
     }
 
     protected JsonObject getHealthJson(SmallRyeHealth health) {
