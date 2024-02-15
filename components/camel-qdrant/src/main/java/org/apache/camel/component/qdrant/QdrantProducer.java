@@ -28,6 +28,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.WithPayloadSelectorFactory;
 import io.qdrant.client.WithVectorsSelectorFactory;
+import io.qdrant.client.grpc.Collections.VectorParams;
 import io.qdrant.client.grpc.Points;
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.CamelContext;
@@ -75,6 +76,8 @@ public class QdrantProducer extends DefaultAsyncProducer {
         final QdrantAction action = in.getHeader(Qdrant.Headers.ACTION, QdrantAction.class);
 
         switch (action) {
+            case CREATE_COLLECTION:
+                return createCollection(exchange, callback);
             case UPSERT:
                 return upsert(exchange, callback);
             case RETRIEVE:
@@ -227,6 +230,33 @@ public class QdrantProducer extends DefaultAsyncProducer {
                         in.setHeader(Qdrant.Headers.OPERATION_ID, r.getOperationId());
                         in.setHeader(Qdrant.Headers.OPERATION_STATUS, r.getStatus().name());
                         in.setHeader(Qdrant.Headers.OPERATION_STATUS_VALUE, r.getStatus().getNumber());
+                    }
+
+                    callback.done(false);
+                });
+
+        return false;
+    }
+
+    private boolean createCollection(Exchange exchange, AsyncCallback callback) {
+        final Message in = exchange.getMessage();
+        final VectorParams body = in.getBody(VectorParams.class);
+
+        if (body == null) {
+            exchange.setException(new QdrantActionException(
+                    QdrantAction.CREATE_COLLECTION,
+                    "A payload of type VectorParams.class is expected"));
+
+            return true;
+        }
+
+        final String collection = getEndpoint().getCollection();
+
+        call(
+                this.client.createCollectionAsync(collection, body),
+                (r, t) -> {
+                    if (t != null) {
+                        exchange.setException(new QdrantActionException(QdrantAction.CREATE_COLLECTION, t));
                     }
 
                     callback.done(false);
