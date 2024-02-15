@@ -172,7 +172,7 @@ public class QdrantProducer extends DefaultAsyncProducer {
                                 Points.ReadConsistency.class)),
                 (r, t) -> {
                     if (t != null) {
-                        exchange.setException(new QdrantActionException(QdrantAction.DELETE, t));
+                        exchange.setException(new QdrantActionException(QdrantAction.RETRIEVE, t));
                     } else {
                         in.setBody(new ArrayList<>(r));
                         in.setHeader(Qdrant.Headers.SIZE, r.size());
@@ -207,7 +207,7 @@ public class QdrantProducer extends DefaultAsyncProducer {
         } else {
             exchange.setException(new QdrantActionException(
                     QdrantAction.DELETE,
-                    "A payload of type PointsSelector or Filter is expected"));
+                    "A payload of type PointsSelector, PointId or Filter is expected"));
 
             return true;
         }

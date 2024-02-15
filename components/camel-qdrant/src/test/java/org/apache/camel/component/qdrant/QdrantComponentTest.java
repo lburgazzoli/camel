@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QdrantComponentTest extends QdrantTestSupport {
     @Override
     protected void doPreSetup() throws Exception {
-        HttpResponse<byte[]> resp = QDRANT.put("/collections/upsert", Map.of(
+        HttpResponse<byte[]> resp = QDRANT.put("/collections/testCollection", Map.of(
                 "vectors", Map.of(
                         "size", 2,
                         "distance", Collections.Distance.Cosine)));
@@ -52,7 +52,7 @@ public class QdrantComponentTest extends QdrantTestSupport {
     @Test
     @Order(1)
     public void upsert() {
-        Exchange result = fluentTemplate.to("qdrant:upsert")
+        Exchange result = fluentTemplate.to("qdrant:testCollection")
                 .withHeader(Qdrant.Headers.ACTION, QdrantAction.UPSERT)
                 .withBody(
                         Points.PointStruct.newBuilder()
@@ -83,7 +83,7 @@ public class QdrantComponentTest extends QdrantTestSupport {
     @Order(2)
     @SuppressWarnings({ "unchecked" })
     public void retrieve() {
-        Exchange result = fluentTemplate.to("qdrant:upsert")
+        Exchange result = fluentTemplate.to("qdrant:testCollection")
                 .withHeader(Qdrant.Headers.ACTION, QdrantAction.RETRIEVE)
                 .withBody(id(8))
                 .request(Exchange.class);
@@ -100,7 +100,7 @@ public class QdrantComponentTest extends QdrantTestSupport {
     @Test
     @Order(3)
     public void delete() {
-        Exchange result = fluentTemplate.to("qdrant:upsert")
+        Exchange result = fluentTemplate.to("qdrant:testCollection")
                 .withHeader(Qdrant.Headers.ACTION, QdrantAction.DELETE)
                 .withBody(
                         Points.Filter.newBuilder()
@@ -126,7 +126,7 @@ public class QdrantComponentTest extends QdrantTestSupport {
     @Test
     @Order(4)
     public void retrieveAfterDelete() {
-        Exchange result = fluentTemplate.to("qdrant:upsert")
+        Exchange result = fluentTemplate.to("qdrant:testCollection")
                 .withHeader(Qdrant.Headers.ACTION, QdrantAction.RETRIEVE)
                 .withBody(id(8))
                 .request(Exchange.class);
