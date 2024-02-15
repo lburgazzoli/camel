@@ -138,4 +138,6 @@ public class QdrantComponentTest extends QdrantTestSupport {
             assertThat(c).hasSize(0);
         });
     }
+
+
 }

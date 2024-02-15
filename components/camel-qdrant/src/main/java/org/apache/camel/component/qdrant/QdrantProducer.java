@@ -34,6 +34,7 @@ import org.apache.camel.AsyncCallback;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.NoSuchHeaderException;
 import org.apache.camel.support.DefaultAsyncProducer;
 
 public class QdrantProducer extends DefaultAsyncProducer {
@@ -76,6 +77,10 @@ public class QdrantProducer extends DefaultAsyncProducer {
         final QdrantAction action = in.getHeader(Qdrant.Headers.ACTION, QdrantAction.class);
 
         try {
+            if (action == null) {
+                throw new NoSuchHeaderException("The action is a required header", exchange, Qdrant.Headers.ACTION);
+            }
+
             switch (action) {
                 case CREATE_COLLECTION:
                     return createCollection(exchange, callback);
