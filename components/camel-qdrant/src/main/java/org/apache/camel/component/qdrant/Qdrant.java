@@ -51,7 +51,7 @@ public class Qdrant {
         public static final String INCLUDE_VECTORS = "CamelQdrantWithVectors";
         public static final boolean DEFAULT_INCLUDE_VECTORS = false;
 
-        @Metadata(description = "The numer of elements.", javaType = "int")
+        @Metadata(description = "The number of elements.", javaType = "int")
         public static final String SIZE = "CamelQdrantSize";
     }
 }
