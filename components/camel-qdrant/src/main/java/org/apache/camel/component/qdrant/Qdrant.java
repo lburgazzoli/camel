@@ -53,6 +53,5 @@ public class Qdrant {
 
         @Metadata(description = "The numer of elements.", javaType = "int")
         public static final String SIZE = "CamelQdrantSize";
-
     }
 }

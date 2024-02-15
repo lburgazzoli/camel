@@ -25,7 +25,6 @@ import io.qdrant.client.VectorsFactory;
 import io.qdrant.client.grpc.Collections;
 import io.qdrant.client.grpc.Points;
 import org.apache.camel.Exchange;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -38,19 +37,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class QdrantComponentTest extends QdrantTestSupport {
-    @Override
-    protected void doPreSetup() throws Exception {
-        HttpResponse<byte[]> resp = QDRANT.put("/collections/testCollection", Map.of(
-                "vectors", Map.of(
-                        "size", 2,
-                        "distance", Collections.Distance.Cosine)));
+    @Test
+    @Order(1)
+    public void createCollection() {
+        Exchange result = fluentTemplate.to("qdrant:testCollection")
+                .withHeader(Qdrant.Headers.ACTION, QdrantAction.CREATE_COLLECTION)
+                .withBody(
+                        Collections.VectorParams.newBuilder()
+                                .setSize(2)
+                                .setDistance(Collections.Distance.Cosine).build())
+                .request(Exchange.class);
 
-        Assumptions.assumeTrue(resp.statusCode() == 200,
-                "The test must be able to insert data to be able to execute");
+        assertThat(result).isNotNull();
+        assertThat(result.getException()).isNull();
     }
 
     @Test
-    @Order(1)
+    @Order(2)
     public void upsert() {
         Exchange result = fluentTemplate.to("qdrant:testCollection")
                 .withHeader(Qdrant.Headers.ACTION, QdrantAction.UPSERT)
@@ -80,7 +83,7 @@ public class QdrantComponentTest extends QdrantTestSupport {
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     @SuppressWarnings({ "unchecked" })
     public void retrieve() {
         Exchange result = fluentTemplate.to("qdrant:testCollection")
@@ -98,7 +101,7 @@ public class QdrantComponentTest extends QdrantTestSupport {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void delete() {
         Exchange result = fluentTemplate.to("qdrant:testCollection")
                 .withHeader(Qdrant.Headers.ACTION, QdrantAction.DELETE)
@@ -124,7 +127,7 @@ public class QdrantComponentTest extends QdrantTestSupport {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void retrieveAfterDelete() {
         Exchange result = fluentTemplate.to("qdrant:testCollection")
                 .withHeader(Qdrant.Headers.ACTION, QdrantAction.RETRIEVE)
