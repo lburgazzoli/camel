@@ -17,24 +17,33 @@
 
 package org.apache.camel.component.qdrant;
 
-import io.qdrant.client.grpc.Collections;
+import java.util.List;
+import java.util.Map;
+
+import io.qdrant.client.VectorsFactory;
+import io.qdrant.client.grpc.Points;
 import org.apache.camel.Exchange;
 import org.apache.camel.NoSuchHeaderException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.qdrant.client.PointIdFactory.id;
+import static io.qdrant.client.ValueFactory.value;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class QdrantCreateCollectionTest extends QdrantTestSupport {
+public class QdrantUpsertTest extends QdrantTestSupport {
 
-    @DisplayName("Tests that trying to create a collection without passing the action name triggers a failure")
+    @DisplayName("Tests that trying to upsert without passing the action name triggers a failure")
     @Test
-    public void createCollectionWithoutRequiredParameters() {
-        Exchange result = fluentTemplate.to("qdrant:createCollection")
+    public void upsertWithoutRequiredParameters() {
+        Exchange result = fluentTemplate.to("qdrant:upsert")
                 .withBody(
-                        Collections.VectorParams.newBuilder()
-                                .setSize(2)
-                                .setDistance(Collections.Distance.Cosine).build())
+                        Points.PointStruct.newBuilder()
+                                .setId(id(8))
+                                .setVectors(VectorsFactory.vectors(List.of(3.5f, 4.5f)))
+                                .putAllPayload(Map.of(
+                                        "foo", value("hello"),
+                                        "bar", value(1))))
                 .request(Exchange.class);
 
         assertThat(result).isNotNull();
