@@ -75,18 +75,25 @@ public class QdrantProducer extends DefaultAsyncProducer {
         final Message in = exchange.getMessage();
         final QdrantAction action = in.getHeader(Qdrant.Headers.ACTION, QdrantAction.class);
 
-        switch (action) {
-            case CREATE_COLLECTION:
-                return createCollection(exchange, callback);
-            case UPSERT:
-                return upsert(exchange, callback);
-            case RETRIEVE:
-                return retrieve(exchange, callback);
-            case DELETE:
-                return delete(exchange, callback);
-            default:
-                throw new UnsupportedOperationException("Unsupported action: " + action.name());
+        try {
+            switch (action) {
+                case CREATE_COLLECTION:
+                    return createCollection(exchange, callback);
+                case UPSERT:
+                    return upsert(exchange, callback);
+                case RETRIEVE:
+                    return retrieve(exchange, callback);
+                case DELETE:
+                    return delete(exchange, callback);
+                default:
+                    throw new UnsupportedOperationException("Unsupported action: " + action.name());
+            }
+        } catch (Exception e) {
+            exchange.setException(e);
 
+            callback.done(true);
+
+            return true;
         }
     }
 
@@ -97,7 +104,7 @@ public class QdrantProducer extends DefaultAsyncProducer {
     // ***************************************
 
     @SuppressWarnings({ "unchecked" })
-    private boolean upsert(Exchange exchange, AsyncCallback callback) {
+    private boolean upsert(Exchange exchange, AsyncCallback callback) throws Exception {
         final String collection = getEndpoint().getCollection();
         final Message in = exchange.getMessage();
         final Object body = in.getBody();
@@ -108,11 +115,9 @@ public class QdrantProducer extends DefaultAsyncProducer {
         } else if (body instanceof Collection<?>) {
             points.addAll((Collection<Points.PointStruct>) body);
         } else {
-            exchange.setException(new QdrantActionException(
+            throw new QdrantActionException(
                     QdrantAction.UPSERT,
-                    "A payload of type PointStruct or Collection<PointStruct> is expected"));
-
-            return true;
+                    "A payload of type PointStruct or Collection<PointStruct> is expected");
         }
 
         Points.UpsertPoints value = Points.UpsertPoints.newBuilder()
@@ -139,7 +144,7 @@ public class QdrantProducer extends DefaultAsyncProducer {
     }
 
     @SuppressWarnings({ "unchecked" })
-    private boolean retrieve(Exchange exchange, AsyncCallback callback) {
+    private boolean retrieve(Exchange exchange, AsyncCallback callback) throws Exception {
         final String collection = getEndpoint().getCollection();
         final Message in = exchange.getMessage();
         final Object body = in.getBody();
@@ -151,11 +156,9 @@ public class QdrantProducer extends DefaultAsyncProducer {
         } else if (body instanceof Collection<?>) {
             ids.addAll((Collection<Points.PointId>) body);
         } else {
-            exchange.setException(new QdrantActionException(
+            throw new QdrantActionException(
                     QdrantAction.RETRIEVE,
-                    "A payload of type PointId or Collection<PointId> is expected"));
-
-            return true;
+                    "A payload of type PointId or Collection<PointId> is expected");
         }
 
         call(
@@ -187,7 +190,7 @@ public class QdrantProducer extends DefaultAsyncProducer {
         return false;
     }
 
-    private boolean delete(Exchange exchange, AsyncCallback callback) {
+    private boolean delete(Exchange exchange, AsyncCallback callback) throws Exception {
         final String collection = getEndpoint().getCollection();
         final Message in = exchange.getMessage();
         final Object body = in.getBody();
@@ -208,11 +211,9 @@ public class QdrantProducer extends DefaultAsyncProducer {
                     .setFilter((Points.Filter) body)
                     .build();
         } else {
-            exchange.setException(new QdrantActionException(
+            throw new QdrantActionException(
                     QdrantAction.DELETE,
-                    "A payload of type PointsSelector, PointId or Filter is expected"));
-
-            return true;
+                    "A payload of type PointsSelector, PointId or Filter is expected");
         }
 
         Points.DeletePoints value = Points.DeletePoints.newBuilder()
@@ -238,16 +239,14 @@ public class QdrantProducer extends DefaultAsyncProducer {
         return false;
     }
 
-    private boolean createCollection(Exchange exchange, AsyncCallback callback) {
+    private boolean createCollection(Exchange exchange, AsyncCallback callback) throws Exception {
         final Message in = exchange.getMessage();
         final VectorParams body = in.getBody(VectorParams.class);
 
         if (body == null) {
-            exchange.setException(new QdrantActionException(
+            throw new QdrantActionException(
                     QdrantAction.CREATE_COLLECTION,
-                    "A payload of type VectorParams.class is expected"));
-
-            return true;
+                    "A payload of type VectorParams.class is expected");
         }
 
         final String collection = getEndpoint().getCollection();
