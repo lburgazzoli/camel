@@ -14,7 +14,7 @@
 
 *{component-header}*
 
-The Qdrant Component provides support for interacting with the Qdrant Vector Database.
+The Qdrant Component provides support for interacting with the https://qdrant.tech[Qdrant Vector Database].
 
 == URI format
 
@@ -22,6 +22,8 @@ The Qdrant Component provides support for interacting with the Qdrant Vector Dat
 ----
 qdrant:collection[?options]
 ----
+
+Where *collection* represents a named set of points (vectors with a payload) defined in your database.
 
 
 // component-configure options: START
@@ -36,5 +38,27 @@ include::partial$component-endpoint-options.adoc[]
 // endpoint options: START
 
 // endpoint options: END
+
+
+== Samples
+
+In the route below we use the qdrant component to perform insert + updates (upsert) on points in the _myCollection_:
+
+[source,java]
+----
+from("direct:in")
+    .setHeader(Qdrant.Headers.ACTION)
+        .constant(QdrantAction.UPSERT)
+    .setBody()
+        .constant(
+            Points.PointStruct.newBuilder()
+                .setId(id(8))
+                .setVectors(VectorsFactory.vectors(List.of(3.5f, 4.5f)))
+                .putAllPayload(Map.of(
+                        "foo", value("hello"),
+                        "bar", value(1)))
+                .build())
+    .to("qdrant:myCollection");
+----
 
 include::spring-boot:partial$starter.adoc[]
