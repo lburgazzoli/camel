@@ -106,7 +106,7 @@ public class QdrantEndpoint extends DefaultEndpoint {
 
     @Override
     public Consumer createConsumer(Processor processor) throws Exception {
-        throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("Consumer is not implemented for this component");
     }
 
     @Override
