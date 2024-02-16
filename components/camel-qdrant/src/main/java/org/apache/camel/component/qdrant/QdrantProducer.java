@@ -17,7 +17,6 @@
 package org.apache.camel.component.qdrant;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
@@ -112,18 +111,7 @@ public class QdrantProducer extends DefaultAsyncProducer {
     private boolean upsert(Exchange exchange, AsyncCallback callback) throws Exception {
         final String collection = getEndpoint().getCollection();
         final Message in = exchange.getMessage();
-        final Object body = in.getBody();
-
-        List<Points.PointStruct> points = new ArrayList<>();
-        if (body instanceof Points.PointStruct) {
-            points.add((Points.PointStruct) body);
-        } else if (body instanceof Collection<?>) {
-            points.addAll((Collection<Points.PointStruct>) body);
-        } else {
-            throw new QdrantActionException(
-                    QdrantAction.UPSERT,
-                    "A payload of type PointStruct or Collection<PointStruct> is expected");
-        }
+        final List<Points.PointStruct> points = in.getMandatoryBody(List.class);
 
         Points.UpsertPoints value = Points.UpsertPoints.newBuilder()
                 .setCollectionName(collection)
@@ -152,19 +140,8 @@ public class QdrantProducer extends DefaultAsyncProducer {
     private boolean retrieve(Exchange exchange, AsyncCallback callback) throws Exception {
         final String collection = getEndpoint().getCollection();
         final Message in = exchange.getMessage();
-        final Object body = in.getBody();
 
-        List<Points.PointId> ids = new ArrayList<>();
-
-        if (body instanceof Points.PointId) {
-            ids.add((Points.PointId) body);
-        } else if (body instanceof Collection<?>) {
-            ids.addAll((Collection<Points.PointId>) body);
-        } else {
-            throw new QdrantActionException(
-                    QdrantAction.RETRIEVE,
-                    "A payload of type PointId or Collection<PointId> is expected");
-        }
+        final List<Points.PointId> ids = in.getMandatoryBody(List.class);
 
         call(
                 this.client.retrieveAsync(
@@ -200,26 +177,7 @@ public class QdrantProducer extends DefaultAsyncProducer {
         final Message in = exchange.getMessage();
         final Object body = in.getBody();
 
-        Points.PointsSelector selector;
-
-        if (body instanceof Points.PointsSelector) {
-            selector = (Points.PointsSelector) body;
-        } else if (body instanceof Points.PointId) {
-            selector = Points.PointsSelector.newBuilder()
-                    .setPoints(
-                            Points.PointsIdsList.newBuilder()
-                                    .addIds((Points.PointId) body)
-                                    .build())
-                    .build();
-        } else if (body instanceof Points.Filter) {
-            selector = Points.PointsSelector.newBuilder()
-                    .setFilter((Points.Filter) body)
-                    .build();
-        } else {
-            throw new QdrantActionException(
-                    QdrantAction.DELETE,
-                    "A payload of type PointsSelector, PointId or Filter is expected");
-        }
+        Points.PointsSelector selector = in.getMandatoryBody(Points.PointsSelector.class);
 
         Points.DeletePoints value = Points.DeletePoints.newBuilder()
                 .setCollectionName(collection)
@@ -246,13 +204,7 @@ public class QdrantProducer extends DefaultAsyncProducer {
 
     private boolean createCollection(Exchange exchange, AsyncCallback callback) throws Exception {
         final Message in = exchange.getMessage();
-        final VectorParams body = in.getBody(VectorParams.class);
-
-        if (body == null) {
-            throw new QdrantActionException(
-                    QdrantAction.CREATE_COLLECTION,
-                    "A payload of type VectorParams.class is expected");
-        }
+        final VectorParams body = in.getMandatoryBody(VectorParams.class);
 
         final String collection = getEndpoint().getCollection();
 

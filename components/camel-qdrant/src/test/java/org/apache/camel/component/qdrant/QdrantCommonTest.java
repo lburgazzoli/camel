@@ -18,6 +18,7 @@
 package org.apache.camel.component.qdrant;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.InvalidPayloadException;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,7 +38,7 @@ public final class QdrantCommonTest extends CamelTestSupport {
                 .request(Exchange.class);
 
         assertThat(result).isNotNull();
-        assertThat(result.getException()).isInstanceOf(QdrantActionException.class);
-        assertThat(result.getException().getMessage()).contains("A payload of type");
+        assertThat(result.getException()).isInstanceOf(InvalidPayloadException.class);
+        assertThat(result.getException().getMessage()).contains("No body available of type");
     }
 }
