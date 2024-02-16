@@ -44,6 +44,10 @@ include::partial$component-endpoint-options.adoc[]
 
 In the route below we use the qdrant component to perform insert + updates (upsert) on points in the _myCollection_:
 
+[tabs]
+====
+Java::
++
 [source,java]
 ----
 from("direct:in")
@@ -60,5 +64,6 @@ from("direct:in")
                 .build())
     .to("qdrant:myCollection");
 ----
+====
 
 include::spring-boot:partial$starter.adoc[]
