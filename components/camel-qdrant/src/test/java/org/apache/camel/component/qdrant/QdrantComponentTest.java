@@ -16,7 +16,6 @@
  */
 package org.apache.camel.component.qdrant;
 
-import java.net.http.HttpResponse;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

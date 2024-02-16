@@ -399,7 +399,7 @@ public interface QdrantEndpointBuilderFactory {
         }
 
         /**
-         * The numer of elements.
+         * The number of elements.
          * 
          * The option is a: {@code int} type.
          * 
