@@ -17,24 +17,24 @@
 
 package org.apache.camel.component.qdrant;
 
-import io.qdrant.client.grpc.Collections;
+import io.qdrant.client.grpc.Points;
 import org.apache.camel.Exchange;
 import org.apache.camel.NoSuchHeaderException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.qdrant.client.ConditionFactory.matchKeyword;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class QdrantCreateCollectionTest extends QdrantTestSupport {
+public class QdrantDeleteTest extends QdrantTestSupport {
 
-    @DisplayName("Tests that trying to create a collection without passing the action name triggers a failure")
+    @DisplayName("Tests that trying to delete without passing the action name triggers a failure")
     @Test
-    public void createCollectionWithoutRequiredParameters() {
-        Exchange result = fluentTemplate.to("qdrant:createCollection")
-                .withBody(
-                        Collections.VectorParams.newBuilder()
-                                .setSize(2)
-                                .setDistance(Collections.Distance.Cosine).build())
+    public void deleteWithoutRequiredParameters() {
+        Exchange result = fluentTemplate.to("qdrant:upsert")
+                .withBody(Points.Filter.newBuilder()
+                        .addMust(matchKeyword("foo", "hello"))
+                        .build())
                 .request(Exchange.class);
 
         assertThat(result).isNotNull();

@@ -35,7 +35,7 @@ import static io.qdrant.client.ValueFactory.value;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class QdrantComponentTest extends QdrantTestSupport {
+public class QdrantComponentIT extends QdrantTestSupport {
     @Test
     @Order(1)
     public void createCollection() {
@@ -138,6 +138,5 @@ public class QdrantComponentTest extends QdrantTestSupport {
             assertThat(c).hasSize(0);
         });
     }
-
 
 }
