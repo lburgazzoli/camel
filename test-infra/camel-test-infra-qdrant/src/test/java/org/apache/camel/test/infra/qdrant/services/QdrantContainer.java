@@ -16,13 +16,6 @@
  */
 package org.apache.camel.test.infra.qdrant.services;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.Map;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -30,9 +23,6 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 public class QdrantContainer extends GenericContainer<QdrantContainer> {
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final HttpClient HTTP = HttpClient.newHttpClient();
-
     public static final int HTTP_PORT = 6333;
     public static final int GRPC_PORT = 6334;
 
@@ -63,22 +53,5 @@ public class QdrantContainer extends GenericContainer<QdrantContainer> {
 
     public int getHttpPort() {
         return getMappedPort(HTTP_PORT);
-    }
-
-    public HttpResponse<byte[]> put(String path, Map<Object, Object> body) throws Exception {
-        final String reqPath = !path.startsWith("/") ? "/" + path : path;
-        final String reqUrl = String.format("http://%s:%d%s", getHttpHost(), getHttpPort(), reqPath);
-
-        String requestBody = MAPPER
-                .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(body);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(reqUrl))
-                .header("Content-Type", "application/json")
-                .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
-
-        return HTTP.send(request, HttpResponse.BodyHandlers.ofByteArray());
     }
 }

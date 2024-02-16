@@ -16,9 +16,6 @@
  */
 package org.apache.camel.test.infra.qdrant.services;
 
-import java.net.http.HttpResponse;
-import java.util.Map;
-
 import org.apache.camel.test.infra.qdrant.common.QdrantProperties;
 
 public class QdrantRemoteService implements QdrantService {
@@ -56,10 +53,5 @@ public class QdrantRemoteService implements QdrantService {
     @Override
     public int getGrpcPort() {
         return Integer.getInteger(QdrantProperties.QDRANT_GRPC_PORT);
-    }
-
-    @Override
-    public HttpResponse<byte[]> put(String path, Map<Object, Object> body) throws Exception {
-        throw new UnsupportedOperationException("Not Implemented");
     }
 }

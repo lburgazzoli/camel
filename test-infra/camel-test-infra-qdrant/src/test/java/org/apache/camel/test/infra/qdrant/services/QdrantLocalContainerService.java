@@ -16,9 +16,6 @@
  */
 package org.apache.camel.test.infra.qdrant.services;
 
-import java.net.http.HttpResponse;
-import java.util.Map;
-
 import org.apache.camel.test.infra.common.LocalPropertyResolver;
 import org.apache.camel.test.infra.common.services.ContainerService;
 import org.apache.camel.test.infra.qdrant.common.QdrantProperties;
@@ -89,10 +86,5 @@ public class QdrantLocalContainerService implements QdrantService, ContainerServ
     @Override
     public int getGrpcPort() {
         return container.getGrpcPort();
-    }
-
-    @Override
-    public HttpResponse<byte[]> put(String path, Map<Object, Object> body) throws Exception {
-        return container.put(path, body);
     }
 }

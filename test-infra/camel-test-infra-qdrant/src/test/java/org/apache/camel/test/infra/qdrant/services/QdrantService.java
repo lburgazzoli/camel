@@ -16,13 +16,16 @@
  */
 package org.apache.camel.test.infra.qdrant.services;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.test.infra.common.services.TestService;
 
 public interface QdrantService extends TestService {
-
     String getHttpHost();
 
     int getHttpPort();
@@ -31,5 +34,20 @@ public interface QdrantService extends TestService {
 
     int getGrpcPort();
 
-    HttpResponse<byte[]> put(String path, Map<Object, Object> body) throws Exception;
+    default HttpResponse<byte[]> put(String path, Map<Object, Object> body) throws Exception {
+        final String reqPath = !path.startsWith("/") ? "/" + path : path;
+        final String reqUrl = String.format("http://%s:%d%s", getHttpHost(), getHttpPort(), reqPath);
+
+        String requestBody = new ObjectMapper()
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsString(body);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(reqUrl))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofByteArray());
+    }
 }

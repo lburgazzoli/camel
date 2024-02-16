@@ -121,6 +121,7 @@ public class QdrantEndpoint extends DefaultEndpoint {
         if (this.client != null && this.closeClient) {
             this.client.close();
             this.client = null;
+            this.closeClient = false;
         }
     }
 

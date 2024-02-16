@@ -70,10 +70,9 @@ public class QdrantComponentTest extends QdrantTestSupport {
         assertThat(result).isNotNull();
         assertThat(result.getException()).isNull();
 
-        assertThat(result.getIn().getHeaders())
-                .hasEntrySatisfying(Qdrant.Headers.OPERATION_ID, v -> {
-                    assertThat(v).isNotNull();
-                });
+        assertThat(result.getIn().getHeaders()).hasEntrySatisfying(Qdrant.Headers.OPERATION_ID, v -> {
+            assertThat(v).isNotNull();
+        });
         assertThat(result.getIn().getHeaders()).hasEntrySatisfying(Qdrant.Headers.OPERATION_STATUS, v -> {
             assertThat(v).isEqualTo(Points.UpdateStatus.Completed.name());
         });
@@ -114,10 +113,9 @@ public class QdrantComponentTest extends QdrantTestSupport {
         assertThat(result).isNotNull();
         assertThat(result.getException()).isNull();
 
-        assertThat(result.getIn().getHeaders())
-                .hasEntrySatisfying(Qdrant.Headers.OPERATION_ID, v -> {
-                    assertThat(v).isNotNull();
-                });
+        assertThat(result.getIn().getHeaders()).hasEntrySatisfying(Qdrant.Headers.OPERATION_ID, v -> {
+            assertThat(v).isNotNull();
+        });
         assertThat(result.getIn().getHeaders()).hasEntrySatisfying(Qdrant.Headers.OPERATION_STATUS, v -> {
             assertThat(v).isEqualTo(Points.UpdateStatus.Completed.name());
         });
