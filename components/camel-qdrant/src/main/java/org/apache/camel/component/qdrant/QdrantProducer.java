@@ -140,7 +140,6 @@ public class QdrantProducer extends DefaultAsyncProducer {
     private boolean retrieve(Exchange exchange, AsyncCallback callback) throws Exception {
         final String collection = getEndpoint().getCollection();
         final Message in = exchange.getMessage();
-
         final List<Points.PointId> ids = in.getMandatoryBody(List.class);
 
         call(
@@ -175,9 +174,7 @@ public class QdrantProducer extends DefaultAsyncProducer {
     private boolean delete(Exchange exchange, AsyncCallback callback) throws Exception {
         final String collection = getEndpoint().getCollection();
         final Message in = exchange.getMessage();
-        final Object body = in.getBody();
-
-        Points.PointsSelector selector = in.getMandatoryBody(Points.PointsSelector.class);
+        final Points.PointsSelector selector = in.getMandatoryBody(Points.PointsSelector.class);
 
         Points.DeletePoints value = Points.DeletePoints.newBuilder()
                 .setCollectionName(collection)
@@ -205,7 +202,6 @@ public class QdrantProducer extends DefaultAsyncProducer {
     private boolean createCollection(Exchange exchange, AsyncCallback callback) throws Exception {
         final Message in = exchange.getMessage();
         final VectorParams body = in.getMandatoryBody(VectorParams.class);
-
         final String collection = getEndpoint().getCollection();
 
         call(
